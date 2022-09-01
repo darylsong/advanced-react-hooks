@@ -3,68 +3,29 @@
 
 import * as React from 'react'
 
-const MessagesDisplay = React.forwardRef(function MessagesDisplay(
-  {messages},
-  ref,
-) {
-  const containerRef = React.useRef()
-  React.useLayoutEffect(() => {
-    scrollToBottom()
-  })
-  function scrollToTop() {
-    containerRef.current.scrollTop = 0
-  }
-  function scrollToBottom() {
-    containerRef.current.scrollTop = containerRef.current.scrollHeight
-  }
-  React.useImperativeHandle(ref, () => ({
-    scrollToTop,
-    scrollToBottom,
-  }))
+const Child = React.forwardRef((props, ref) => {
+    const inputRef = React.useRef()
 
-  return (
-    <div ref={containerRef} role="log">
-      {messages.map((message, index, array) => (
-        <div key={message.id}>
-          <strong>{message.author}</strong>: <span>{message.content}</span>
-          {array.length - 1 === index ? null : <hr />}
-        </div>
-      ))}
-    </div>
-  )
+    React.useImperativeHandle(ref, () => ({
+        focus: () => {
+            inputRef.current.focus()
+        }
+    }))
+
+    return <input value="text" ref={inputRef} readOnly />
 })
 
-function App() {
-  const messageDisplayRef = React.useRef()
-  const [messages, setMessages] = React.useState(allMessages.slice(0, 8))
-  const addMessage = () =>
-    messages.length < allMessages.length
-      ? setMessages(allMessages.slice(0, messages.length + 1))
-      : null
-  const removeMessage = () =>
-    messages.length > 0
-      ? setMessages(allMessages.slice(0, messages.length - 1))
-      : null
+const App = () => {
+  const inputRef = React.useRef()
 
-  const scrollToTop = () => messageDisplayRef.current.scrollToTop()
-  const scrollToBottom = () => messageDisplayRef.current.scrollToBottom()
+  const handleClick = () => inputRef.current.focus()
 
   return (
-    <div className="messaging-app">
-      <div style={{display: 'flex', justifyContent: 'space-between'}}>
-        <button onClick={addMessage}>add message</button>
-        <button onClick={removeMessage}>remove message</button>
-      </div>
-      <hr />
-      <div>
-        <button onClick={scrollToTop}>scroll to top</button>
-      </div>
-      <MessagesDisplay ref={messageDisplayRef} messages={messages} />
-      <div>
-        <button onClick={scrollToBottom}>scroll to bottom</button>
-      </div>
+    <div>
+      <Child ref={inputRef} />
+      <button onClick={handleClick}>button</button>
     </div>
-  )
+  );
 }
 
 export default App
